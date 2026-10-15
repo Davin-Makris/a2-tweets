@@ -10,7 +10,23 @@ class Tweet {
 	//returns either 'live_event', 'achievement', 'completed_event', or 'miscellaneous'
     get source():string {
         //TODO: identify whether the source is a live event, an achievement, a completed event, or miscellaneous.
-        return "unknown";
+        if (this.text == null){
+            return "unknown"
+        }
+        
+        if (this.text.includes("completed") || this.text.includes("posted")){
+            return "completed_event"
+        }
+
+        else if (this.text.includes("right now")){
+            return "live_event"
+        }
+
+        else if (this.text.includes("achieved")){
+            return "achievement"
+        }
+
+        else return "miscellaneous"     
     }
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
@@ -23,6 +39,8 @@ class Tweet {
         if(!this.written) {
             return "";
         }
+
+        //select text past ' - ' and before '...'
         //TODO: parse the written text from the tweet
         return "";
     }
