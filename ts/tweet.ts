@@ -22,7 +22,7 @@ class Tweet {
             return "live_event"
         }
 
-        else if (this.text.includes("achieved")){
+        else if (this.text.includes("Achieved")){
             return "achievement"
         }
 
@@ -31,8 +31,7 @@ class Tweet {
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
-        //TODO: identify whether the tweet is written
-        return false;
+        return this.text.includes(' - ');
     }
 
     get writtenText():string {
@@ -42,15 +41,35 @@ class Tweet {
 
         //select text past ' - ' and before '...'
         //TODO: parse the written text from the tweet
-        return "";
+
+        return this.text.substring(this.text.indexOf(' - ') + ' - '.length,
+                                     this.text.indexOf('https://t') - 'https://t'.length);
     }
 
     get activityType():string {
         if (this.source != 'completed_event') {
             return "unknown";
         }
-        //TODO: parse the activity type from the text of the tweet
-        return "";
+        
+        var activityString = this.text;
+        if (this.written){
+            this.text.substring(0, this.text.indexOf(this.writtenText));
+        }
+        
+        activityString = activityString.toLowerCase();
+        
+        if (activityString.includes(' walk ')){
+            return 'walk'
+        }
+        
+        if (activityString.includes(' run ')){
+            return 'run'
+        }
+        
+        if (activityString.includes(' run ')){
+            return 'run'
+        }
+        return "other";
     }
 
     get distance():number {
