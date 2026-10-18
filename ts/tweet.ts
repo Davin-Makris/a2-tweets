@@ -43,7 +43,7 @@ class Tweet {
         //TODO: parse the written text from the tweet
 
         return this.text.substring(this.text.indexOf(' - ') + ' - '.length,
-                                     this.text.indexOf('https://t') - 'https://t'.length);
+                                     this.text.indexOf('https://t'));
     }
 
     get activityType():string {
@@ -53,31 +53,54 @@ class Tweet {
         
         var activityString = this.text;
         if (this.written){
-            this.text.substring(0, this.text.indexOf(this.writtenText));
+            activityString = this.text.substring(0, this.text.indexOf(this.writtenText));
         }
         
         activityString = activityString.toLowerCase();
         
-        if (activityString.includes(' walk ')){
-            return 'walk'
+        var startLoc = Math.max(this.text.indexOf(' km '), this.text.indexOf(' mi '));
+        var endLoc = activityString.indexOf(' with ') == -1 ? this.text.indexOf(' - ') : activityString.indexOf(' with ');
+
+        if (startLoc == -1 || startLoc > endLoc){
+            return 'unknown';
         }
-        
-        if (activityString.includes(' run ')){
-            return 'run'
-        }
-        
-        if (activityString.includes(' run ')){
-            return 'run'
-        }
-        return "other";
+
+        return this.text.substring(startLoc + 4, endLoc);
+    }
+
+    get dayOfWeek():string {
+        const options:Intl.DateTimeFormatOptions = {
+            weekday: "long"
+	    };
+
+	    var day:string = this.time.toLocaleDateString("en-US", options)
+        return day;
     }
 
     get distance():number {
         if(this.source != 'completed_event') {
             return 0;
         }
-        //TODO: prase the distance from the text of the tweet
-        return 0;
+
+        var kmFlag:boolean = false;
+        
+        var startLoc = this.text.indexOf(' a ')
+        var endLoc = Math.max(this.text.indexOf(' km '), this.text.indexOf(' mi '));
+        if (this.text.indexOf(' km ') == endLoc){
+            kmFlag = true;
+        }
+        if (startLoc == -1 || endLoc == -1){
+            return 0;
+        }
+
+        var distString:string = this.text.substring(startLoc + 3, endLoc)
+        var distInMiles:number = parseFloat(distString) * (1.609 * (kmFlag?1:0));
+        
+        if (isNaN(distInMiles)){
+            return 0;
+        }
+
+        return distInMiles;
     }
 
     getHTMLTableRow(rowNumber:number):string {
