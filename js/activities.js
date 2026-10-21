@@ -11,13 +11,12 @@ function parseTweets(runkeeper_tweets) {
 
 	var numberActivites = allActivityTypes(tweet_array).size;
 	console.log(allActivityTypes(tweet_array));
-	console.log(-1 == true);
 	document.getElementById("numberActivities").innerText = numberActivites;
 
 
 	//TODO: create a new array or manipulate tweet_array to create a graph of the number of tweets containing each type of activity.
 
-	activity_vis_spec = returnActivityVisSpec();
+	var activity_vis_spec = returnActivityVisSpec();
 	vegaEmbed('#activityVis', activity_vis_spec, {actions:false});
 
 	
@@ -28,14 +27,37 @@ function parseTweets(runkeeper_tweets) {
 	document.getElementById("secondMost").innerText = "Walk";
 	document.getElementById("thirdMost").innerText = "Bike";
 
-	
-	distance_vis_spec = returnDistanceVisSpec();
-	vegaEmbed('#distanceVis', distance_vis_spec, {actions:false, renderer:'canvas'});
+	var distance_vis_spec = returnDistanceVisSpec();
+	var agg_distance_vis_spec = returnAggDistanceVisSpec();
 
-	agg_distance_vis_spec = returnAggDistanceVisSpec();
-	vegaEmbed('#distanceVisAggregated', distance_vis_spec, {actions:false, renderer:'canvas'});
+	vegaEmbed('#distanceVis', distance_vis_spec, {actions:false, renderer:'canvas'});
+	
+	var button = document.getElementById("aggregate");
+	var isAggregatedFlag = false;
+
+	button.addEventListener("click", function(){
+		if (isAggregatedFlag){
+			vegaEmbed('#distanceVis', distance_vis_spec, {actions:false, renderer:'canvas'});
+			vegaEmbed('#distanceVisAggregated', {}, {actions:false, renderer:'canvas'});
+		}
+		else{
+			vegaEmbed('#distanceVis', {}, {actions:false, renderer:'canvas'});
+			vegaEmbed('#distanceVisAggregated', agg_distance_vis_spec, {actions:false, renderer:'canvas'});
+		}
+		
+		button.textContent = isAggregatedFlag ?  "Show Means" : "Show All Activities";
+		isAggregatedFlag = !isAggregatedFlag;
+	})
+	
+
+	
+	//vegaEmbed('#distanceVis', distance_vis_spec, {actions:false, renderer:'canvas'});
+
+	//var agg_distance_vis_spec = returnAggDistanceVisSpec();
+	//vegaEmbed('#distanceVisAggregated', agg_distance_vis_spec, {actions:false, renderer:'canvas'});
 
 }
+
 
 function allActivityTypes(tweet_array){
 	var activityCounter = new Set();
@@ -72,7 +94,7 @@ function returnActivityVisSpec(){
 }
 
 function returnDistanceVisSpec(){
-	distance_vis_spec = {
+	var distance_vis_spec = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
 	  "data": {
@@ -107,7 +129,7 @@ function returnDistanceVisSpec(){
 	return distance_vis_spec;
 }
 function returnAggDistanceVisSpec(){
-	distance_vis_spec = {
+	var distance_vis_spec = {
 	  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
 	  "description": "A graph of the number of Tweets containing each type of activity.",
 	  "data": {
